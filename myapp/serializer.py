@@ -7,7 +7,8 @@ from .models import match
 class matchserializer(serializers.ModelSerializer):
     class Meta:
         model= match
-        exclude = ['team1runs', 'team1wickets', 'innings']
+        exclude = ['team1runs', 'team1wickets']
+        read_only_fields = ['innings']
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -50,5 +51,10 @@ class patchmatchserializer(serializers.ModelSerializer):
         rep = super().to_representation(instance)
         if instance.innings==3:
             winner = instance.bawlingteam  if instance.team1runs > instance.runs else instance.battingteam
-            rep = {'WINNING TEAM': winner}
+            rep = {
+                'id': instance.id, #instance.pk bhi chlti
+                'TEAM 1': f"{instance.bawlingteam} Scored {instance.team1runs}-{instance.team1wickets}",
+                'TEAM 2': f"{instance.battingteam} Scored {instance.runs}-{instance.wickets}",
+                'WINNER': winner
+            }
         return rep
